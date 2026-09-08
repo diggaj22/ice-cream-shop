@@ -1,4 +1,4 @@
-// --- 🧠 PREMIUM APP LOGIC (FULL FILE) ---
+// --- 🧠 PREMIUM APP LOGIC (FULL FILE WITH LOGOUT) ---
 
 const App = {
     cart: JSON.parse(localStorage.getItem('diggaj_cart')) || [],
@@ -52,13 +52,29 @@ const App = {
         if (countElement) countElement.textContent = this.cart.length;
     },
 
-    // 🔐 Auth Logic (Login & Registration)
+    // 🔐 Auth & Logout Logic
     checkLoginStatus() {
         const loginBtn = document.getElementById('nav-login');
         if (this.user && loginBtn) {
-            loginBtn.textContent = 'PROFILE';
+            // Display username in uppercase 🧑‍💻
+            loginBtn.textContent = this.user.toUpperCase();
             loginBtn.href = '#';
+            
+            // Clicking the username button now triggers the log out prompt 🚪
+            loginBtn.onclick = (e) => {
+                e.preventDefault();
+                if (confirm(`Logged in as ${this.user}. Do you want to log out? 🚪`)) {
+                    this.logout();
+                }
+            };
         }
+    },
+
+    logout() {
+        localStorage.removeItem('diggaj_user');
+        this.user = null;
+        this.toast("Logged out successfully! 👋");
+        setTimeout(() => window.location.href = 'index.html', 1000);
     },
 
     toggleAuthMode(e) {
@@ -99,7 +115,7 @@ const App = {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         
-        // Fetch our "Database" of users from LocalStorage
+        // Fetch database of users from LocalStorage
         let users = JSON.parse(localStorage.getItem('diggaj_users')) || [];
 
         if (this.isLoginMode) {
