@@ -1,43 +1,207 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Order - Diggaj's Ice Cream</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+// --- 🧠 PREMIUM APP LOGIC (FULL FILE) ---
 
-    <nav class="navbar">
-        <a href="index.html" class="logo serif gold-text">Diggaj's.</a>
-        <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="menu.html">Menu</a></li>
-            <li><a href="cart.html" class="gold-text">Cart (<span id="cart-count">0</span>)</a></li>
-            <li><a href="login.html" id="nav-login" class="btn-premium" style="padding: 0.5rem 1.5rem; font-size:0.8rem;">Login</a></li>
-        </ul>
-    </nav>
+const App = {
+    cart: JSON.parse(localStorage.getItem('diggaj_cart')) || [],
+    user: localStorage.getItem('diggaj_user') || null,
+    isLoginMode: true, // Tracks if user is logging in or signing up
 
-    <div class="container">
-        <div class="glass-panel">
-            <h2 class="serif" style="font-size: 2.5rem; margin-bottom: 2rem;">Your <span class="gold-text">Order</span></h2>
+    init() {
+        this.updateCartCount();
+        this.checkLoginStatus();
+        this.init3DTilt();
+        this.renderCartPage();
+    },
+
+    // 🍞 Custom Toast Notification System
+    toast(message) {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `✨ ${message}`;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.animation = 'fadeOut 0.3s ease-out forwards';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    },
+
+    // 🛒 Cart Logic
+    addToCart(id, name, price, img) {
+        this.cart.push({ id, name, price, img });
+        localStorage.setItem('diggaj_cart', JSON.stringify(this.cart));
+        this.updateCartCount();
+        this.toast(`${name} added to your cart! 🍨`);
+    },
+
+    removeFromCart(index) {
+        this.cart.splice(index, 1);
+        localStorage.setItem('diggaj_cart', JSON.stringify(this.cart));
+        this.updateCartCount();
+        this.renderCartPage();
+        this.toast("Item removed. 🗑️");
+    },
+
+    updateCartCount() {
+        const countElement = document.getElementById('cart-count');
+        if (countElement) countElement.textContent = this.cart.length;
+    },
+
+    // 🔐 Auth Logic (Login & Registration)
+    checkLoginStatus() {
+        const loginBtn = document.getElementById('nav-login');
+        if (this.user && loginBtn) {
+            // Displays the actual username instead of "PROFILE" 🧑‍💻
+            loginBtn.textContent = this.user.toUpperCase();
+            loginBtn.href = '#';
+        }
+    },
+
+    toggleAuthMode(e) {
+        if(e) e.preventDefault();
+        this.isLoginMode = !this.isLoginMode;
+        
+        const nameGroup = document.getElementById('name-group');
+        const nameInput = document.getElementById('name');
+        const btn = document.getElementById('auth-btn');
+        const toggleText = document.getElementById('auth-toggle-text');
+        const toggleLink = document.getElementById('auth-toggle-link');
+        const title = document.getElementById('auth-title');
+        const subtitle = document.getElementById('auth-subtitle');
+
+        if (this.isLoginMode) {
+            // Switch to Login Mode
+            nameGroup.style.display = 'none';
+            nameInput.removeAttribute('required');
+            btn.innerHTML = 'Authenticate 🔐';
+            toggleText.innerText = "Don't have a premium account?";
+            toggleLink.innerText = "Create one";
+            title.innerHTML = 'Welcome <span class="gold-text">Back</span>';
+            subtitle.innerText = "Access your premium account.";
+        } else {
+            // Switch to Register Mode
+            nameGroup.style.display = 'block';
+            nameInput.setAttribute('required', 'true');
+            btn.innerHTML = 'Create Account ✨';
+            toggleText.innerText = "Already have an account?";
+            toggleLink.innerText = "Sign in";
+            title.innerHTML = 'Join the <span class="gold-text">Elite</span>';
+            subtitle.innerText = "Register for premium access.";
+        }
+    },
+
+    handleAuth(e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        
+        // Fetch our "Database" of users from LocalStorage
+        let users = JSON.parse(localStorage.getItem('diggaj_users')) || [];
+
+        if (this.isLoginMode) {
+            // LOGIN LOGIC 🔓
+            const user = users.find(u => u.email === email && u.password === password);
+            if (user) {
+                localStorage.setItem('diggaj_user', user.name);
+                this.toast(`Authentication successful. Welcome back, ${user.name}! 🚀`);
+                setTimeout(() => window.location.href = 'index.html', 1500);
+            } else {
+                this.toast("❌ Invalid email or password. Try again.");
+            }
+        } else {
+            // REGISTER LOGIC 📝
+            const name = document.getElementById('name').value;
+            const userExists = users.find(u => u.email === email);
             
-            <div id="cart-items-container">
-                <!-- JS Inject Here -->
-            </div>
+            if (userExists) {
+                this.toast("⚠️ This email is already registered!");
+            } else {
+                users.push({ name, email, password });
+                localStorage.setItem('diggaj_users', JSON.stringify(users)); // Save to database
+                localStorage.setItem('diggaj_user', name); // Auto-login the new user
+                this.toast(`Account created! Welcome to the club, ${name} ✨`);
+                setTimeout(() => window.location.href = 'index.html', 1500);
+            }
+        }
+    },
 
-            <div class="cart-total">
-                <h3 class="serif" style="font-size: 2rem;">Total</h3>
-                <!-- Fixed the hardcoded dollar sign to Rupee here 👇 -->
-                <h3 class="serif gold-text" style="font-size: 2.5rem;">₹<span id="cart-total-price">0</span></h3>
-            </div>
+    checkout() {
+        if (this.cart.length === 0) return this.toast("Your cart is empty! 🍦");
+        if (!this.user) {
+            this.toast("Please log in to complete checkout! 🔒");
+            setTimeout(() => window.location.href = 'login.html', 1500);
+            return;
+        }
+        this.toast("Processing your premium order... 🎉");
+        this.cart = [];
+        localStorage.setItem('diggaj_cart', JSON.stringify([]));
+        this.updateCartCount();
+        this.renderCartPage();
+    },
+
+    // 🧊 Vanilla JS 3D Tilt Effect for Cards
+    init3DTilt() {
+        const cards = document.querySelectorAll('.product-card');
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = ((y - centerY) / centerY) * -10; 
+                const rotateY = ((x - centerX) / centerX) * 10;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
             
-            <div style="text-align: right; margin-top: 2rem;">
-                <button class="btn-premium" onclick="App.checkout()" style="font-size: 1.2rem; padding: 1rem 3rem;">Secure Checkout 💳</button>
-            </div>
-        </div>
-    </div>
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
+                card.style.transition = 'transform 0.5s ease';
+            });
+            
+            card.addEventListener('mouseenter', () => {
+                card.style.transition = 'none'; 
+            });
+        });
+    },
 
-    <script src="app.js"></script>
-</body>
-</html>
+    // 📜 Render Cart DOM Dynamically
+    renderCartPage() {
+        const container = document.getElementById('cart-items-container');
+        const totalSpan = document.getElementById('cart-total-price');
+        if (!container) return; 
+
+        if (this.cart.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:3rem; color:#a1a1aa;">Your luxury cart is empty. 🍨</div>';
+            totalSpan.textContent = '0';
+            return;
+        }
+
+        let total = 0;
+        container.innerHTML = this.cart.map((item, index) => {
+            total += item.price;
+            return `
+            <div class="cart-item">
+                <div class="cart-item-info">
+                    <img src="${item.img}" alt="${item.name}">
+                    <h3 class="serif">${item.name}</h3>
+                </div>
+                <div style="display:flex; align-items:center; gap:2rem;">
+                    <p class="gold-text" style="font-size:1.5rem; font-weight:600;">₹${item.price}</p>
+                    <button class="remove-btn" onclick="App.removeFromCart(${index})"><i class="fas fa-times"></i>✕</button>
+                </div>
+            </div>`;
+        }).join('');
+        
+        totalSpan.textContent = total;
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => App.init());
