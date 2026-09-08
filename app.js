@@ -1,8 +1,9 @@
-// --- 🧠 PREMIUM APP LOGIC ---
+// --- 🧠 PREMIUM APP LOGIC (FULL FILE) ---
 
 const App = {
     cart: JSON.parse(localStorage.getItem('diggaj_cart')) || [],
     user: localStorage.getItem('diggaj_user') || null,
+    isLoginMode: true, // Tracks if user is logging in or signing up
 
     init() {
         this.updateCartCount();
@@ -43,7 +44,7 @@ const App = {
         localStorage.setItem('diggaj_cart', JSON.stringify(this.cart));
         this.updateCartCount();
         this.renderCartPage();
-        this.toast("Item removed.");
+        this.toast("Item removed. 🗑️");
     },
 
     updateCartCount() {
@@ -51,7 +52,7 @@ const App = {
         if (countElement) countElement.textContent = this.cart.length;
     },
 
-    // 🔐 Auth Logic
+    // 🔐 Auth Logic (Login & Registration)
     checkLoginStatus() {
         const loginBtn = document.getElementById('nav-login');
         if (this.user && loginBtn) {
@@ -60,12 +61,72 @@ const App = {
         }
     },
 
-    handleLogin(e) {
+    toggleAuthMode(e) {
+        if(e) e.preventDefault();
+        this.isLoginMode = !this.isLoginMode;
+        
+        const nameGroup = document.getElementById('name-group');
+        const nameInput = document.getElementById('name');
+        const btn = document.getElementById('auth-btn');
+        const toggleText = document.getElementById('auth-toggle-text');
+        const toggleLink = document.getElementById('auth-toggle-link');
+        const title = document.getElementById('auth-title');
+        const subtitle = document.getElementById('auth-subtitle');
+
+        if (this.isLoginMode) {
+            // Switch to Login Mode
+            nameGroup.style.display = 'none';
+            nameInput.removeAttribute('required');
+            btn.innerHTML = 'Authenticate 🔐';
+            toggleText.innerText = "Don't have a premium account?";
+            toggleLink.innerText = "Create one";
+            title.innerHTML = 'Welcome <span class="gold-text">Back</span>';
+            subtitle.innerText = "Access your premium account.";
+        } else {
+            // Switch to Register Mode
+            nameGroup.style.display = 'block';
+            nameInput.setAttribute('required', 'true');
+            btn.innerHTML = 'Create Account ✨';
+            toggleText.innerText = "Already have an account?";
+            toggleLink.innerText = "Sign in";
+            title.innerHTML = 'Join the <span class="gold-text">Elite</span>';
+            subtitle.innerText = "Register for premium access.";
+        }
+    },
+
+    handleAuth(e) {
         e.preventDefault();
         const email = document.getElementById('email').value;
-        localStorage.setItem('diggaj_user', email);
-        this.toast("Authentication successful. Welcome back! 🚀");
-        setTimeout(() => window.location.href = 'index.html', 1500);
+        const password = document.getElementById('password').value;
+        
+        // Fetch our "Database" of users from LocalStorage
+        let users = JSON.parse(localStorage.getItem('diggaj_users')) || [];
+
+        if (this.isLoginMode) {
+            // LOGIN LOGIC 🔓
+            const user = users.find(u => u.email === email && u.password === password);
+            if (user) {
+                localStorage.setItem('diggaj_user', user.name);
+                this.toast(`Authentication successful. Welcome back, ${user.name}! 🚀`);
+                setTimeout(() => window.location.href = 'index.html', 1500);
+            } else {
+                this.toast("❌ Invalid email or password. Try again.");
+            }
+        } else {
+            // REGISTER LOGIC 📝
+            const name = document.getElementById('name').value;
+            const userExists = users.find(u => u.email === email);
+            
+            if (userExists) {
+                this.toast("⚠️ This email is already registered!");
+            } else {
+                users.push({ name, email, password });
+                localStorage.setItem('diggaj_users', JSON.stringify(users)); // Save to database
+                localStorage.setItem('diggaj_user', name); // Auto-login the new user
+                this.toast(`Account created! Welcome to the club, ${name} ✨`);
+                setTimeout(() => window.location.href = 'index.html', 1500);
+            }
+        }
     },
 
     checkout() {
