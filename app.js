@@ -93,7 +93,7 @@ const App = {
                 const centerX = rect.width / 2;
                 const centerY = rect.height / 2;
                 
-                const rotateX = ((y - centerY) / centerY) * -10; // Max 10 deg rotation
+                const rotateX = ((y - centerY) / centerY) * -10; 
                 const rotateY = ((x - centerX) / centerX) * 10;
                 
                 card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
@@ -105,7 +105,7 @@ const App = {
             });
             
             card.addEventListener('mouseenter', () => {
-                card.style.transition = 'none'; // Snappy response on enter
+                card.style.transition = 'none'; 
             });
         });
     },
@@ -114,11 +114,11 @@ const App = {
     renderCartPage() {
         const container = document.getElementById('cart-items-container');
         const totalSpan = document.getElementById('cart-total-price');
-        if (!container) return; // Only run on cart.html
+        if (!container) return; 
 
         if (this.cart.length === 0) {
             container.innerHTML = '<div style="text-align:center; padding:3rem; color:#a1a1aa;">Your luxury cart is empty. 🍨</div>';
-            totalSpan.textContent = '0.00';
+            totalSpan.textContent = '0';
             return;
         }
 
@@ -132,13 +132,13 @@ const App = {
                     <h3 class="serif">${item.name}</h3>
                 </div>
                 <div style="display:flex; align-items:center; gap:2rem;">
-                    <p class="gold-text" style="font-size:1.5rem; font-weight:600;">$${item.price.toFixed(2)}</p>
+                    <p class="gold-text" style="font-size:1.5rem; font-weight:600;">₹${item.price}</p>
                     <button class="remove-btn" onclick="App.removeFromCart(${index})"><i class="fas fa-times"></i>✕</button>
                 </div>
             </div>`;
         }).join('');
         
-        totalSpan.textContent = total.toFixed(2);
+        totalSpan.textContent = total;
     }
 };
 
