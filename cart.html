@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Order - Diggaj's Ice Cream</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo serif gold-text">Diggaj's.</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="menu.html">Menu</a></li>
+            <li><a href="cart.html" class="gold-text">Cart (<span id="cart-count">0</span>)</a></li>
+            <li><a href="login.html" id="nav-login" class="btn-premium" style="padding: 0.5rem 1.5rem; font-size:0.8rem;">Login</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="glass-panel">
+            <h2 class="serif" style="font-size: 2.5rem; margin-bottom: 2rem;">Your <span class="gold-text">Order</span></h2>
+            
+            <div id="cart-items-container">
+                <!-- JS Inject Here -->
+            </div>
+
+            <div class="cart-total">
+                <h3 class="serif" style="font-size: 2rem;">Total</h3>
+                <h3 class="serif gold-text" style="font-size: 2.5rem;">$<span id="cart-total-price">0.00</span></h3>
+            </div>
+            
+            <div style="text-align: right; margin-top: 2rem;">
+                <button class="btn-premium" onclick="App.checkout()" style="font-size: 1.2rem; padding: 1rem 3rem;">Secure Checkout 💳</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
