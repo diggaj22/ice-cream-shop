@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Diggaj's Ice Cream</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo serif gold-text">Diggaj's.</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="menu.html">Menu</a></li>
+            <li><a href="cart.html">Cart (<span id="cart-count">0</span>)</a></li>
+            <li><a href="login.html" id="nav-login" class="btn-premium" style="padding: 0.5rem 1.5rem; font-size:0.8rem;">Login</a></li>
+        </ul>
+    </nav>
+
+    <div class="container" style="max-width: 500px; display:flex; align-items:center; min-height: 70vh;">
+        <div class="glass-panel" style="width: 100%;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h2 class="serif" style="font-size: 2.5rem;">Welcome <span class="gold-text">Back</span></h2>
+                <p style="color: var(--text-muted);">Access your premium account.</p>
+            </div>
+            
+            <form onsubmit="App.handleLogin(event)">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required placeholder="director@renzoverse.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-premium" style="width: 100%; margin-top: 1rem;">Authenticate 🔐</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
